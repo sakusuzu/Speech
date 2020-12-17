@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>音声認識のサンプル</title>
+  </head>
+  <style>
+    .center-box {
+      text-align: center;
+    }
+    .large-text {
+      font-size: 4rem;
+    }
+  </style>
+  <body>
+    <p class="center-box"><img id="mic" src="micoff.svg" /></p>
+    <div id="result-div" class="large-text"></div>
+    <script>
+      const resultDiv = document.querySelector("#result-div");
+      const micDiv = document.querySelector("#mic");
+
+      // 音声認識機能(Chrome)
+      let rec = new webkitSpeechRecognition();
+      rec.continuous = true;
+      rec.interimResults = false;
+      rec.lang = "ja-JP";
+
+      let stopped = true;
+
+      micDiv.onclick = function () {
+        if (stopped == true) {
+          resultDiv.innerHTML = "";
+          rec.start();
+        } else {
+          rec.stop();
+        }
+      };
+
+      rec.onstart = function () {
+        console.log("on start");
+        micDiv.setAttribute("src", "micon.svg");
+      };
+
+      rec.onend = function () {
+        console.log("on end");
+        micDiv.setAttribute("src", "micoff.svg");
+      };
+
+      rec.onresult = function (e) {
+        rec.stop();
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            console.log(e);
+            let text = e.results[i][0].transcript;
+            console.log(text);
+            resultDiv.innerHTML = text;
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

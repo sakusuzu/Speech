@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>クイズ</title>
+    <script
+      type="text/javascript"
+      src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"
+    ></script>
+  </head>
+  <style>
+    h1 {
+      text-align: center;
+    }
+    #que {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 40px;
+    }
+    #btn_area {
+      width: 100%;
+      position: absolute;
+      top: 50%;
+    }
+    #start {
+      padding: 5px;
+    }
+  </style>
+  <body>
+    <h1>難読漢字クイズ</h1>
+    <div id="que">ここにクイズにが表示されるよ</div>
+    <div id="btn_area">
+      <center><button id="start">スタート</button></center>
+    </div>
+    <script>
+      $(function () {
+        let quiz = [
+          ["牛蒡", "ごぼう"],
+          ["鹿尾菜", "ひじき"],
+          ["木耳", "きくらげ"],
+          ["枇杷", "びわ"]
+        ];
+        let i = 0;
+
+        $("#start").click(function () {
+          $("#start").text("次の問題");
+          $("#que").text(quiz[i][0]);
+          i += 1;
+        });
+      });
+    </script>
+  </body>
+</html>

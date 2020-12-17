@@ -1,0 +1,227 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>クイズ</title>
+    <script
+      type="text/javascript"
+      src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"
+    ></script>
+  </head>
+  <style>
+    .center-box {
+      text-align: center;
+    }
+    #mic {
+      height: 30%;
+    }
+    #hin {
+      height: 60px;
+    }
+    #hinto {
+      text-align: center;
+    }
+    #moji{
+      text-align: center;
+    }
+    .large-text {
+      font-size: 2rem;
+      color: rbg(255, 0, 0);
+      text-align: center;
+    }
+    h1 {
+      text-align: center;
+    }
+    #que {
+      text-align: center;
+      height: 500px;
+      margin: 10px 0;
+      font-size: 4rem;
+      font-weight: bold;
+    }
+    #que p {
+      font-size: 20px;
+      margin: 0;
+      font-weight:normal;
+    }
+    #btn_area {
+      width: 100%;
+      height: 300px;
+      position: absolute;
+      top: 60%;
+    }
+    #start {
+      padding: 5px;
+    }
+    #toi {
+      margin-bottom: 15px;
+    }
+    #setsumei{
+      margin-top: 40px;
+      text-align: center;
+    }
+    b{
+      font-size: 20px;
+    }
+  </style>
+  <body>
+    <h1>難読漢字クイズ</h1>
+    <p id="hinto"><img id="hin" src="hinto.jpg" /><p id="moji"></p></p>
+    <p id="setsumei">このクイズは声で答えを入力してください。<br>全10問となっています。<br><b>--操作方法--</b><br>スタートボタンでクイズが始まります。<br>上の電球マークを押すとヒントを教えてくれます。<br>次の問題ボタンを押すと次に進みます。</p>
+    <div id="que"></div>
+    <div id="btn_area">
+      <center><button id="start">スタート</button></center>
+      <p class="center-box"><img id="mic" src="micoff.svg" /></p>
+      <div id="result-div" class="large-text"></div>
+    </div>
+    <script>
+      const resultDiv = document.querySelector("#result-div");
+      const micDiv = document.querySelector("#mic");
+      let speakingtime = 0;
+
+      // 音声認識機能(Chrome)
+      let rec = new webkitSpeechRecognition();
+      let stopped = true;
+      rec.continuous = true;
+      rec.interimResults = false;
+      rec.lang = "ja-JP";
+
+      micDiv.onclick = function () {
+        if (stopped == true) {
+          stopped = false;
+          resultDiv.innerHTML = "";
+          rec.start();
+        } else {
+          stopped = true;
+          rec.stop();
+        }
+      };
+
+      rec.onstart = function () {
+        console.log("on start");
+        micDiv.setAttribute("src", "micon.svg");
+        speakingtime = 0;
+      };
+
+      rec.onend = function () {
+        console.log("on end");
+        micDiv.setAttribute("src", "micoff.svg");
+        if (stopped == false) {
+          setTimeout(function () {
+            rec.start();
+          }, speakingtime);
+        }
+      };
+
+      rec.onresult = function (e) {
+        rec.stop();
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            console.log(e);
+            let text = e.results[i][0].transcript;
+            resultDiv.innerHTML = text;
+            text = dialogue(text);
+            console.log(text);
+            speakingtime = text.length * 200;
+            console.log("estimate:", speakingtime, "ms");
+            speak(text);
+          }
+        }
+      };
+
+      function dialogue(input) {
+        let re = new RegExp(ans);
+        if (re.test(input)) {
+          return "正解です";
+        } else {
+          return "違います";
+        }
+      }
+      function last() {
+        text = "結果発表です。いくつわかりましたか？";
+        speak(text);
+      }
+      function hinto() {
+        text = hin;
+        $("#moji").text(text);
+        speak(text).stop();
+      }
+      // 発話機能をインスタンス化
+      let msg = new SpeechSynthesisUtterance();
+      let voices = window.speechSynthesis.getVoices();
+
+      function speak(text) {
+        // 以下オプション設定（日本語は効かないもよう。。）
+        msg.voice = voices[7]; // 7:Google 日本人 ja-JP ※他は英語のみ
+        msg.volume = 1.0; // 音量 min 0 ~ max 1
+        msg.rate = 1.0; // 速度 min 0 ~ max 10
+        msg.pitch = 1.0; // 音程 min 0 ~ max 2
+
+        msg.text = text; // 喋る内容
+        msg.lang = "ja-JP"; // en-US or ja-JP
+        //msg.lang = 'en-US'; // en-US or ja-JP
+
+        // 発話実行
+        speechSynthesis.speak(msg);
+      }
+
+      // 終了時の処理
+      msg.onend = function (event) {
+        console.log("喋った時間：" + event.elapsedTime + "ms");
+      };
+      let quiz = [
+        ["牛蒡", "ごぼう", "きんぴらが美味しいですね"],
+        ["鹿尾菜", "ひじき", "食べると長生きするとか髪が濃くなるとか..."],
+        ["木耳", "きくらげ", "キノコの仲間"],
+        ["枇杷", "びわ", "法師"],
+        ["山葵", "わさび", "ツーンときます"],
+        ["糸瓜", "へちま", "これのタワシがあったりします"],
+        ["玉蜀黍","とうもろこし","焼いてしょうゆを塗ると美味しいですね"],
+        ["大蒜","にんにく","匂いが気になるかもしれません"],
+        ["蚕豆","そらまめ","塩ゆでが美味しいです"],
+        ["辣韭","らっきょう","カレーの付け合わせで出てきます"],
+        ["","",""]
+      ];
+      let ans;
+      let hin;
+      let len=quiz.length;
+      $(function () {
+        let i = 0;
+        $("#start").click(function () {
+          $("#setsumei").remove();
+          $("#start").text("次の問題");
+          $("#que").text(quiz[i][0]);
+          ans = quiz[i][1];
+          hin = quiz[i][2];
+            $("#hinto").click(function () {
+              hinto();
+            });
+            i += 1;
+            if(i>=len){
+            $("#que").text("終了！");
+            $("#start").remove();
+            $("#hinto").remove();
+            $("#moji").remove();
+            $(".large-text").remove();
+            $("#mic").before("<button id='toi'>答えを確認する</button><br>");
+              $("#toi").click(function () {
+                $("#mic").remove();
+                $("#toi").remove();
+                for (t = 0; t < len-1; t++) {
+                  $("#que").append(
+                    "<p>問" +
+                      (t + 1) +
+                      ":" +
+                      quiz[t][0] +
+                      "→" +
+                      quiz[t][1] +
+                      "</p>"
+                  );
+                }//for-append
+                last();
+                });//click-toi
+              }//if^len
+        });//click-start
+      });//func
+    </script>
+  </body>
+</html>

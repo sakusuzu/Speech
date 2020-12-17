@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>音声合成のサンプル</title>
+  </head>
+  <style>
+    .center-box {
+      text-align: center;
+    }
+    .large-text {
+      font-size: 4rem;
+    }
+  </style>
+  <body>
+    <button id="speak">話す</button>
+    <script>
+      // 発話機能をインスタンス化
+      let msg = new SpeechSynthesisUtterance();
+      let voices = window.speechSynthesis.getVoices();
+
+      function speak(text) {
+        // 以下オプション設定
+        msg.voice = voices[7]; // 7:Google 日本人 ja-JP ※他は英語のみ
+        msg.volume = 1.0; // 音量 min 0 ~ max 1
+        msg.rate = 5.0; // 速度 min 0 ~ max 10
+        msg.pitch = 3.0; // 音程 min 0 ~ max 2
+
+        msg.text = text; // 喋る内容
+        msg.lang = "ja-JP"; // en-US or ja-JP
+        // msg.lang = 'en-US'; // en-US or ja-JP
+
+        // 発話実行
+        speechSynthesis.speak(msg);
+      }
+
+      // 終了時の処理
+      msg.onend = function (event) {
+        console.log("End: ", text);
+      };
+
+      let text = "隣の客はよく柿食う客だ";
+
+      let button = document.querySelector("#speak");
+      button.onclick = function () {
+        speak(text);
+      };
+    </script>
+  </body>
+</html>
